@@ -11,12 +11,12 @@ class User < ApplicationRecord
   has_many :favorites, dependent: :destroy
   
   # フォローをした、されたの関係
-has_many :relationships, class_name: "Relationship", foreign_key: "follower_id", dependent: :destroy
-has_many :reverse_of_relationships, class_name: "Relationship", foreign_key: "followed_id", dependent: :destroy
+  has_many :relationships, class_name: "Relationship", foreign_key: "follower_id", dependent: :destroy
+  has_many :reverse_of_relationships, class_name: "Relationship", foreign_key: "followed_id", dependent: :destroy
 
-# 一覧画面で使う
-has_many :followings, through: :relationships, source: :followed
-has_many :followers, through: :reverse_of_relationships, source: :follower
+  # 一覧画面で使う
+  has_many :followings, through: :relationships, source: :followed
+  has_many :followers, through: :reverse_of_relationships, source: :follower
   
   
   validates :name, length: { minimum: 2, maximum: 20 }, uniqueness: true
@@ -40,5 +40,15 @@ has_many :followers, through: :reverse_of_relationships, source: :follower
     followings.include?(user)
   end
   
+  # 検索方法分岐
+  def self.looks(search, word)
+    if search == "perfect_match"
+      @user = User.where("name LIKE?", "#{word}")
+    elsif search == "partial_match"
+      @user = User.where("name LIKE?","%#{word}%")
+    else
+      @user = User.all
+    end
+  end
   
 end
